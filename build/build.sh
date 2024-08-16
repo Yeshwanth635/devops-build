@@ -3,7 +3,7 @@
 # Defining the image name
 IMAGE_NAME="yeshwanth2435/dev"
 
-# Building the Docker image using Docker Compose
+# Building the Docker image using Docker Compose..
 echo "Building Docker image: $IMAGE_NAME"
 docker compose build
 
