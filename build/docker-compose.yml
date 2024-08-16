@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+  cap-app:
+    build:
+      context: .
+    image: yeshwanth2435/dev
+    container_name: cap-app
+    ports:
+      - "80:80"
