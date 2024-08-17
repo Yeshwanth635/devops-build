@@ -18,7 +18,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "chmod +x build.sh"
+                    sh "chmod +x ./build.sh"
                     sh "./build.sh ${DEV_REPO}"
                     docker.withRegistry( '', registryCredential ) {
                         sh "chmod +x ./deploy.sh"
