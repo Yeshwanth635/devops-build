@@ -21,7 +21,7 @@ pipeline {
                     sh "chmod +x build/build.sh"
                     sh "./build.sh ${DEV_REPO}"
                     docker.withRegistry( '', registryCredential ) {
-                        sh "chmod +x ./deploy.sh"
+                        sh "chmod +x build/deploy.sh"
                         sh "docker push ${DEV_REPO}"
                     }
                 }
@@ -34,9 +34,9 @@ pipeline {
             }
             steps {
                 script {
-                    sh "./build.sh ${PROD_REPO}"
+                    sh "build/build.sh ${PROD_REPO}"
                     docker.withRegistry( '', registryCredential ) {
-                        sh "chmod +x deploy.sh"
+                        sh "chmod +x build/deploy.sh"
                         sh "docker push ${PROD_REPO}"
                     }
                 }
