@@ -1,0 +1,78 @@
+pipeline {
+    agent any
+
+    environment {
+        registryCredential = 'dockerhub'
+        DOCKER_REGISTRY = 'yeshwanth2435' 
+        DOCKER_IMAGE="app-image"
+        DEV_REPO = "${DOCKER_REGISTRY}/dev"
+        PROD_REPO = "${DOCKER_REGISTRY}/prod"
+        EC2_INSTANCE_IP = "172.31.40.178" 
+        SSH_KEY_PATH = "/var/lib/jenkins/id_rsa"
+    }
+
+    stages {
+        stage('Build and Push to Dev Repo') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                script {
+                    sh "chmod +x build.sh"
+                    sh "./build.sh ${DEV_REPO}"
+                    docker.withRegistry( '', registryCredential ) {
+                        sh "chmod +x deploy.sh"
+                        sh "docker push ${DEV_REPO}"
+                    }
+                }
+            }
+        }
+
+        stage('Build and Push to Prod Repo') {
+            when {
+                branch 'master'
+            }
+            steps {
+                script {
+                    sh "./build.sh ${PROD_REPO}"
+                    docker.withRegistry( '', registryCredential ) {
+                        sh "chmod +x deploy.sh"
+                        sh "docker push ${PROD_REPO}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to EC2 Instance') {
+            when {
+                branch 'master'
+            }
+            steps {
+                script {
+                    // SSH into the EC2 instance and deploy the Docker container
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_PATH} ${EC2_INSTANCE_IP} << 'EOF'
+                    # Pull the latest Docker image
+                    docker pull ${PROD_REPO}
+
+                    # Stop and remove the existing container if it exists
+                    docker ps -q --filter "name=${DOCKER_IMAGE}" | xargs -r docker stop
+                    docker ps -aq --filter "name=${DOCKER_IMAGE}" | xargs -r docker rm
+
+                    # Run the new container
+                    docker run -d -p 80:80 --name ${DOCKER_IMAGE} ${PROD_REPO}
+                    EOF
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up Docker images
+            sh "docker rmi ${DEV_REPO} || true"
+            sh "docker rmi ${PROD_REPO} || true"
+        }
+    }
+}

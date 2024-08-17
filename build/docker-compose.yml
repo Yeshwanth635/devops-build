@@ -3,7 +3,7 @@ services:
   cap-app:
     build:
       context: .
-    image: yeshwanth2435/dev
+    image: app-image
     container_name: cap-app
     ports:
       - "80:80"
