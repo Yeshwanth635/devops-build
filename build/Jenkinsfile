@@ -53,9 +53,10 @@ pipeline {
                     // SSH into the EC2 instance and deploy the Docker container
                     sh """
                     ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_PATH} ${EC2_INSTANCE_IP} << 'EOF'
-                    # Pull the latest Docker image
-                    docker pull ${PROD_REPO}
-
+                    docker.withRegistry( '', registryCredential ) {
+                        # Pull the latest Docker image
+                        docker pull ${PROD_REPO}
+                    }
                     # Stop and remove the existing container if it exists
                     docker ps -q --filter "name=${DOCKER_IMAGE}" | xargs -r docker stop
                     docker ps -aq --filter "name=${DOCKER_IMAGE}" | xargs -r docker rm
