@@ -4,7 +4,7 @@
 IMAGE_NAME=$1
 # Building the Docker image using Docker Compose..
 echo "Building Docker image: $IMAGE_NAME"
-docker build -t $IMAGE_NAME
+docker build -t $IMAGE_NAME .
 
 # Checking if the build was successful
 if [ $? -eq 0 ]; then
