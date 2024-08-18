@@ -53,10 +53,18 @@ pipeline {
                     docker.withRegistry( '', registryCredential ) {
                         // Pull the latest Docker image
                         sh "docker pull ${PROD_REPO}"
+                        sh "docker save ${PROD_REPO} -o image.tar"  // Save the Docker image to a tar file
                     }
+                    // Transfer the image tar file to the EC2 instance
+                    sh """
+                    scp -o StrictHostKeyChecking=no -i ${SSH_KEY_PATH} image.tar ${EC2_INSTANCE_IP}:~/image.tar
+                    """
                     // SSH into the EC2 instance and deploy the Docker container
                     sh """
                     ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_PATH} ${EC2_INSTANCE_IP} << 'EOF'
+
+                    # Load the Docker image from the tar file
+                    docker load -i ~/image.tar
                    
                     # Stop and remove the existing container if it exists
                     docker ps -q --filter "name=${DOCKER_IMAGE}" | xargs -r docker stop
