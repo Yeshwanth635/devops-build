@@ -54,7 +54,6 @@ pipeline {
                     sh """
                     ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_PATH} ${EC2_INSTANCE_IP} << 'EOF'
                     docker.withRegistry( '', registryCredential ) {
-                        # Pull the latest Docker image
                         docker pull ${PROD_REPO}
                     }
                     # Stop and remove the existing container if it exists
