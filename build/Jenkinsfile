@@ -66,8 +66,8 @@ pipeline {
                     # Load the Docker image from the tar file
                     docker load -i ~/image.tar
                    
-                    docker ps -q --filter "name=${DOCKER_IMAGE}" | xargs -r docker stop
-                    docker ps -aq --filter "name=${DOCKER_IMAGE}" | xargs -r docker rm
+                    # docker ps -q --filter "name=${DOCKER_IMAGE}" | xargs -r docker stop
+                    # docker ps -aq --filter "name=${DOCKER_IMAGE}" | xargs -r docker rm
 
                     # Run the new container
                     docker run -d -p 80:80 --name ${DOCKER_IMAGE} ${PROD_REPO}
